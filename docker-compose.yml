@@ -1,0 +1,43 @@
+services:
+#  app:
+#    build:
+#      dockerfile: src/Dockerfile
+#      context: .
+#    restart: always
+#    env_file:
+#      - ./.env
+#    expose:
+#      - 8000
+#    ports:
+#      - "8000:8000"
+#    depends_on:
+#      - mongodb
+
+  mongodb:
+    image: mongo
+    container_name: mongo-server
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - mongodb_data_container:/data/db
+
+#  mongo-express:
+#    image: mongo-express:latest
+#    container_name: mongo-express
+#    restart: always
+#    ports:
+#      - "8081:8081"
+#    environment:
+#      ME_CONFIG_MONGODB_SERVER: mongo-server
+#      ME_CONFIG_BASICAUTH_USERNAME: ${ME_CONFIG_BASICAUTH_USERNAME}
+#      ME_CONFIG_BASICAUTH_PASSWORD: ${ME_CONFIG_BASICAUTH_PASSWORD}
+#      ME_CONFIG_MONGODB_ADMINUSERNAME: ${ME_CONFIG_MONGODB_ADMINUSERNAME}
+#      ME_CONFIG_MONGODB_ADMINPASSWORD: ${ME_CONFIG_MONGODB_ADMINPASSWORD}
+#    depends_on:
+#      - mongodb
+
+volumes:
+  mongodb_data_container:
