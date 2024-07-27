@@ -22,7 +22,7 @@ async def lifespan(app: FastAPI):
     await init_beanie(database=mongo.ugc, document_models=[User, Film])
     yield
     # при выключении сервера
-    mongo.mongo.close()
+    mongo.close()
 
 
 app = FastAPI(

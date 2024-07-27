@@ -18,8 +18,8 @@ access_security = JwtAccessBearer(secret_key=settings.secret_key, auto_error=Tru
 
 
 @router.post("/auth", tags=["auth"])
-def auth():
-    subject = {"user_id": str(uuid4()), "role": "user"}
+def auth(user_id: str):
+    subject = {"user_id": user_id, "role": "user"}
     return {"access_token": access_security.create_access_token(subject=subject)}
 
 
