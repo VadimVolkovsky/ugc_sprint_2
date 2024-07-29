@@ -1,57 +1,25 @@
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-LOG_DEFAULT_HANDLERS = [
-    "console",
-]
+import logging
+from asgi_correlation_id.context import correlation_id
+from uuid import uuid4
+import logstash
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "verbose": {"format": LOG_FORMAT},
-        "default": {
-            "()": "uvicorn.logging.DefaultFormatter",
-            "fmt": "%(levelprefix)s %(message)s",
-            "use_colors": None,
-        },
-        "access": {
-            "()": "uvicorn.logging.AccessFormatter",
-            "fmt": "%(levelprefix)s %(client_addr)s - '%(request_line)s' %(status_code)s",
-        },
-    },
-    "handlers": {
-        "console": {
-            "level": "DEBUG",
-            "class": "logging.StreamHandler",
-            "formatter": "verbose",
-        },
-        "default": {
-            "formatter": "default",
-            "class": "logging.StreamHandler",
-            "stream": "ext://sys.stdout",
-        },
-        "access": {
-            "formatter": "access",
-            "class": "logging.StreamHandler",
-            "stream": "ext://sys.stdout",
-        },
-    },
-    "loggers": {
-        "": {
-            "handlers": LOG_DEFAULT_HANDLERS,
-            "level": "INFO",
-        },
-        "uvicorn.error": {
-            "level": "INFO",
-        },
-        "uvicorn.access": {
-            "handlers": ["access"],
-            "level": "INFO",
-            "propagate": False,
-        },
-    },
-    "root": {
-        "level": "INFO",
-        "formatter": "verbose",
-        "handlers": LOG_DEFAULT_HANDLERS,
-    },
-}
+
+class RequestIdFilter(logging.Filter):
+    def filter(self, record):
+        request_id = correlation_id.get()
+        if not request_id:
+            request_id = uuid4()
+        record.request_id = request_id
+        return True
+
+
+def configure_logging():
+    uvicorn_logger = logging.getLogger("uvicorn.access")
+    handler = logstash.LogstashHandler('logstash', 5044, version=1)
+    handler.addFilter(RequestIdFilter())
+    uvicorn_logger.addHandler(handler)
+    logging.basicConfig(
+        handlers=[handler],
+        level=logging.INFO,
+        format='%(levelname)s: \t  %(asctime)s %(name)s [%(request_id)s] %(message)s'
+    )
