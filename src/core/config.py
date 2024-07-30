@@ -1,12 +1,6 @@
-import os
-from logging import config as logging_config
-
-from core.logger import LOGGING
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import BaseModel
 from pathlib import Path
-
-logging_config.dictConfig(LOGGING)
 
 
 BASE_DIR = PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -26,6 +20,7 @@ class Settings(BaseSettings):
 
     project_name: str = "movies_ugc"
     secret_key: str = ""
+    sentry_sdn: str = ""
     app_port: int = 8000
     mongo: MongoSettings = MongoSettings()
 

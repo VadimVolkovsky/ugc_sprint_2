@@ -20,5 +20,5 @@ class ReviewFilmSchemaOut(BaseModel):
     id: UUID
     text: str
     created_at: datetime
-    film_id: UUID
+    user_id: UUID
     likes: list[LikeUser]
