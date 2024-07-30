@@ -1,0 +1,71 @@
+name: Python application
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8, 3.9, 3.11]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip --verbose
+        pip install wemake-python-styleguide flake8-html mypy --verbose
+
+#    - name: Install linters and mypy
+#      run: |
+#        pip install wemake-python-styleguide
+#        pip install mypy
+
+    - name: Lint with wemake-python-styleguide
+      run: |
+        flake8 . --format=html --htmldir=flake-report --statistics
+
+    - name: Upload flake8 report
+      uses: actions/upload-artifact@v2
+      with:
+        name: flake8-report
+        path: flake-report
+
+    - name: Type check with mypy
+      run: |
+        mypy -m src
+
+    - name: Run  Docker Compose
+      run: |
+          touch ./.env
+          echo "${{ vars.ENV }}" > ./.env
+          docker-compose up -d --build
+      continue-on-error: true
+
+    - name: Run Pytest
+      run: docker-compose exec app pytest
+      continue-on-error: true
+
+    - name: Stop Docker Compose
+      run: |
+        docker-compose down
+        rm ./.env
+      continue-on-error: true
+
+    - name: Notify Telegram
+      if: always()
+      run: |
+        curl -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+          -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+          -d "text=CI build for ${{ github.repository }} @ ${{ github.ref }} has completed. Status: ${{ job.status }}."
