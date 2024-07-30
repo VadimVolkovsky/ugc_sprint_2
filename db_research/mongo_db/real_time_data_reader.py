@@ -4,7 +4,7 @@ import time
 
 import faker
 
-from db_research.data_extract import UserFilmLikes
+from db_research.mongo_db.data_extract import UserFilmLikes
 from src.models.films import Bookmark, LikeFilm, LikeUser, ReviewFilm, User
 
 faker = faker.Faker()

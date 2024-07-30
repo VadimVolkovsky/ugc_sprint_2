@@ -6,7 +6,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 from data_extract import main as data_extract_main
 from data_loader import main as data_loader_main
-from db_research.config import settings
+from db_research.mongo_db.config import settings
 from real_time_data_reader import main as real_time_data_reader_main
 from src.models.films import User, Film
 
