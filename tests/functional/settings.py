@@ -22,11 +22,12 @@ class Settings(BaseSettings):
     app_port: int = 8000
     app_scheme: str = "http"
     app_host: str = "127.0.0.1"
+    sentry_enabled: bool = 0
     mongo: MongoSettings = MongoSettings()
 
     model_config = SettingsConfigDict(
         extra="ignore",
-        env_file=BASE_DIR / ".env",
+        env_file=BASE_DIR / ".env.tests",
         env_file_encoding="utf-8",
         env_nested_delimiter="__",
     )

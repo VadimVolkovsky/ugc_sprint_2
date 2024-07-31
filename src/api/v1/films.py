@@ -17,12 +17,6 @@ router.route_class = ExceptionHandlerRoute
 access_security = JwtAccessBearer(secret_key=settings.secret_key, auto_error=True)
 
 
-@router.post("/auth", tags=["auth"])
-def auth(user_id: str):
-    subject = {"user_id": user_id, "role": "user"}
-    return {"access_token": access_security.create_access_token(subject=subject)}
-
-
 @router.post(
     "/{film_id}/like",
     tags=["film likes"],

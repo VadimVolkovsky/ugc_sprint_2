@@ -34,7 +34,7 @@ class TestUserEndpointFilms:
     async def test_endpoint_add_like_film_wrong_grade(
             self, clean_db, make_request, authorize, get_from_db, mongo_client, query_data, expected_answer
     ):
-        token = await authorize()
+        token = authorize()
 
         body, status = await make_request("post", f"{ENDPOINT}/{FILM_ID}/like/", json=query_data, token=token)
 
@@ -45,7 +45,7 @@ class TestUserEndpointFilms:
             self, clean_db, make_request, authorize, get_from_db, mongo_client
     ):
         params = {"grade": 1}
-        token = await authorize()
+        token = authorize()
 
         _, status = await make_request("post", f"{ENDPOINT}/{FILM_ID}/like/", json=params, token=token)
         db = mongo_client
@@ -62,7 +62,7 @@ class TestUserEndpointFilms:
             self, make_request, authorize, get_from_db, mongo_client
     ):
         params = {"grade": 1}
-        token = await authorize()
+        token = authorize()
 
         _, status = await make_request("delete", f"{ENDPOINT}/{FILM_ID}/like/", json=params, token=token)
         db = mongo_client
@@ -89,7 +89,7 @@ class TestUserEndpointFilms:
             self, clean_db, make_request, authorize, get_from_db, mongo_client
     ):
         params = {"text": "good film"}
-        token = await authorize()
+        token = authorize()
 
         _, status = await make_request("post", f"{ENDPOINT}/{FILM_ID}/review/", json=params, token=token)
         db = mongo_client
