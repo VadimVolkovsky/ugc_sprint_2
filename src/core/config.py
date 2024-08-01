@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     secret_key: str = ""
     sentry_sdn: str = ""
     app_port: int = 8000
+    app_path_log: str = "/opt/logs/log1.json"
+    sentry_enabled: bool = 0
     mongo: MongoSettings = MongoSettings()
 
     model_config = SettingsConfigDict(

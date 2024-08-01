@@ -8,6 +8,8 @@ services:
       - ./.env
     expose:
       - 8000
+    volumes:
+      - app_log_data:/opt/logs
     depends_on:
       - mongodb
 
@@ -54,11 +56,7 @@ services:
     environment:
       ES_HOST: "elasticsearch:9200"
     expose:
-      - 5044/udp
       - 5045
-#    ports:
-#      - "5044:5044/udp"
-#      - "5045:5045"
     volumes:
       - ./deploy/logstash.conf:/config/logstash.conf:ro
     command: logstash -f /config/logstash.conf
@@ -87,7 +85,22 @@ services:
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
 
-  filebeat:
+  filebeat-app:
+    image: elastic/filebeat:8.13.0
+    entrypoint: "filebeat -e -strict.perms=false"
+    user: root
+    volumes:
+      - app_log_data:/opt/logs:ro
+      - ./deploy/filebeat_app.yml:/usr/share/filebeat/filebeat.yml
+    depends_on:
+      - app
+      - logstash
+      - elasticsearch
+      - kibana
+    links:
+      - logstash
+
+  filebeat-nginx:
     image: elastic/filebeat:8.13.0
     entrypoint: "filebeat -e -strict.perms=false"
     user: root
@@ -95,7 +108,6 @@ services:
       - /tmp/logs/nginx:/var/log/nginx:ro
       - ./deploy/filebeat.yml:/usr/share/filebeat/filebeat.yml
     depends_on:
-      - app
       - nginx
       - logstash
       - elasticsearch
@@ -105,4 +117,5 @@ services:
 
 volumes:
   mongodb_data_container:
+  app_log_data:
   esdata:

@@ -4,7 +4,13 @@ EXPOSE 8000
 
 WORKDIR /opt/app
 
-RUN groupadd -r web && useradd -r -g web web
+ENV SRC_DIR=/opt
+ENV LOGS_DIR=$SRC_DIR/logs
+
+RUN groupadd -r web && useradd -d $SRC_DIR -r -g web web && \
+    chown web:web -R $SRC_DIR && \
+    mkdir $LOGS_DIR && \
+    chown web:web -R $SRC_DIR
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1

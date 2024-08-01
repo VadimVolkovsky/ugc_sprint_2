@@ -2,8 +2,8 @@ filebeat.inputs:
 - type: filestream
   enabled: true
   paths:
-    - /var/log/nginx/*
-  tags: [ "nginx" ]
+    - /opt/logs/*
+  tags: [ "ugc-app" ]
   json:
     keys_under_root: true
     add_error_key: true

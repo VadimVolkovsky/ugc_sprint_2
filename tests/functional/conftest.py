@@ -11,7 +11,8 @@ from pymongo import MongoClient
 from pymongo.collection import Collection
 
 from tests.functional.settings import test_settings as ts
-from tests.functional.testdata.films import USER_ID, ENDPOINT
+from tests.functional.testdata.films import USER_ID
+from fastapi_jwt import JwtAccessBearer
 
 
 @pytest.fixture(scope="session")
@@ -68,7 +69,7 @@ def make_request(aiohttp_client: aiohttp.ClientSession):
 
 
 @pytest_asyncio.fixture(name="clean_db")
-async def clean_db(mongo_client) -> None:
+async def clean_db(mongo_client: MongoClient) -> None:
     db = mongo_client
     collection_film = db["Film"]
     collection_user = db["User"]
@@ -77,7 +78,7 @@ async def clean_db(mongo_client) -> None:
 
 
 @pytest.fixture(name="get_from_db")
-def get_from_db(mongo_client):
+def get_from_db(mongo_client: MongoClient):
     def find(collection: Collection, condition: dict, multiple: bool = False):
         if multiple:
             results = collection.find(condition)
@@ -86,10 +87,11 @@ def get_from_db(mongo_client):
     return find
 
 
-@pytest_asyncio.fixture(name="authorize")
-def authorize(make_request):
-    async def _authorize():
-        body, status = await make_request("post", f"{ENDPOINT}/auth/", params={"user_id": USER_ID})
-        token = body.get("access_token")
-        return token
-    return _authorize
+@pytest.fixture(scope='session')
+def authorize():
+    def inner():
+        access_security = JwtAccessBearer(secret_key=ts.secret_key, auto_error=True)
+        subject = {"user_id": USER_ID}
+        return access_security.create_access_token(subject=subject)
+
+    return inner
